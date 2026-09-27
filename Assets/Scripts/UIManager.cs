@@ -6,8 +6,13 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [SerializeField] private Image barraVida;
-    [SerializeField] private TMP_Text textoPuntos;
+    [Header("Puntuación")]
+    [SerializeField] private TextMeshProUGUI textoPuntos;
+
+    [Header("Corazones")]
+    [SerializeField] private Image[] corazones;
+    [SerializeField] private Sprite corazonLleno;
+    [SerializeField] private Sprite corazonVacio;
 
     void Awake()
     {
@@ -19,13 +24,34 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ActualizarVida(int actual, int max)
-    {
-        barraVida.fillAmount = (float)actual / max;
-    }
-
     public void ActualizarPuntos(int puntos)
     {
-        textoPuntos.text = puntos.ToString("D4");
+        if (textoPuntos != null)
+        {
+            textoPuntos.text = puntos.ToString("D4");
+        }
+    }
+
+    public void ActualizarCorazones(int vidasActuales)
+    {
+        for (int i = 0; i < corazones.Length; i++)
+        {
+            if (i < vidasActuales)
+            {
+                if (corazonLleno != null) corazones[i].sprite = corazonLleno;
+                corazones[i].enabled = true;
+            }
+            else
+            {
+                if (corazonVacio != null)
+                {
+                    corazones[i].sprite = corazonVacio;
+                }
+                else
+                {
+                    corazones[i].enabled = false;
+                }
+            }
+        }
     }
 }

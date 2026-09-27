@@ -4,12 +4,13 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField] private int vidaMaxima = 100;
-    [SerializeField] private float duracionFlash = 0.15f; // Cuánto dura el parpadeo en rojo
-    
-    private int vida;
+    [SerializeField] private int vidasMaximas = 3;
+    [SerializeField] private float duracionFlash = 0.15f;
+
+    private int vidasActuales;
     private SpriteRenderer spriteRenderer;
     private Color colorOriginal;
+    private bool esInvulnerable = false;
 
     void Awake()
     {
@@ -22,22 +23,29 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
-        vida = vidaMaxima;
-        UIManager.Instance.ActualizarVida(vida, vidaMaxima);
+        vidasActuales = vidasMaximas;
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ActualizarCorazones(vidasActuales);
+        }
     }
 
-    public void RecibirDanio(int cantidad)
+    public void RecibirDanio(int cantidad = 1)
     {
-        vida = Mathf.Max(0, vida - cantidad);
-        UIManager.Instance.ActualizarVida(vida, vidaMaxima);
+        if (esInvulnerable) return;
 
-        // Dispara el parpadeo en rojo si tiene SpriteRenderer
+        vidasActuales = Mathf.Max(0, vidasActuales - cantidad);
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ActualizarCorazones(vidasActuales);
+        }
+
         if (spriteRenderer != null)
         {
             StartCoroutine(FlashDanio());
         }
 
-        if (vida <= 0)
+        if (vidasActuales <= 0)
         {
             Morir();
         }
@@ -45,9 +53,11 @@ public class PlayerHealth : MonoBehaviour
 
     private IEnumerator FlashDanio()
     {
+        esInvulnerable = true;
         spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(duracionFlash);
         spriteRenderer.color = colorOriginal;
+        esInvulnerable = false;
     }
 
     void Morir()
