@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
             PlayerHealth health = GetComponent<PlayerHealth>();
             if (health != null)
             {
-                health.RecibirDanio(25);
+                health.RecibirDanio(1); // Quita 1 corazón por impacto
             }
         }
     }
