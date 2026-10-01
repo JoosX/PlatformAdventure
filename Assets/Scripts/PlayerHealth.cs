@@ -1,33 +1,30 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
+    // Patrón Observer: Evento de vida para desacoplar la UI
+    public static event Action<int> OnVidasCambiadas;
+
     [SerializeField] private int vidasMaximas = 3;
-    [SerializeField] private float duracionFlash = 0.15f;
+    [SerializeField] private float tiempoInvulnerabilidad = 0.15f;
 
     private int vidasActuales;
-    private SpriteRenderer spriteRenderer;
-    private Color colorOriginal;
     private bool esInvulnerable = false;
+    private PlayerFlash efectoFlash;
 
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            colorOriginal = spriteRenderer.color;
-        }
+        efectoFlash = GetComponent<PlayerFlash>();
     }
 
     void Start()
     {
         vidasActuales = vidasMaximas;
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ActualizarCorazones(vidasActuales);
-        }
+        // Notifica la vida inicial al HUD
+        OnVidasCambiadas?.Invoke(vidasActuales);
     }
 
     public void RecibirDanio(int cantidad = 1)
@@ -35,28 +32,29 @@ public class PlayerHealth : MonoBehaviour
         if (esInvulnerable) return;
 
         vidasActuales = Mathf.Max(0, vidasActuales - cantidad);
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ActualizarCorazones(vidasActuales);
-        }
+        
+        // Emite el evento con la nueva vida
+        OnVidasCambiadas?.Invoke(vidasActuales);
 
-        if (spriteRenderer != null)
+        if (efectoFlash != null)
         {
-            StartCoroutine(FlashDanio());
+            efectoFlash.EjecutarFlash(tiempoInvulnerabilidad);
         }
 
         if (vidasActuales <= 0)
         {
             Morir();
         }
+        else
+        {
+            StartCoroutine(RutinaInvulnerabilidad());
+        }
     }
 
-    private IEnumerator FlashDanio()
+    private IEnumerator RutinaInvulnerabilidad()
     {
         esInvulnerable = true;
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(duracionFlash);
-        spriteRenderer.color = colorOriginal;
+        yield return new WaitForSeconds(tiempoInvulnerabilidad);
         esInvulnerable = false;
     }
 

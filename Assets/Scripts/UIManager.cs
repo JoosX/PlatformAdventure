@@ -1,22 +1,22 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Necesario para TextMeshPro
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
     [Header("Puntos")]
-    public TextMeshProUGUI textoPuntosTMP; // Arrastra TextoPuntos si usa TextMeshPro
-    public Text textoPuntosLegacy;          // O arrástralo aquí si usa UI Text tradicional
+    public TextMeshProUGUI textoPuntosTMP;
+    public Text textoPuntosLegacy;
 
     [Header("Contenedores de Corazones")]
-    public GameObject[] corazones; // Arrastra Corazon1, Corazon2, Corazon3
+    public GameObject[] corazones;
 
     [Header("Efecto Último Corazón")]
-    public float shakeIntensity = 3f;  // Amplitud del temblor en píxeles
-    public float shakeSpeed = 25f;      // Velocidad del temblor
+    public float shakeIntensity = 3f;
+    public float shakeSpeed = 25f;
 
     private Coroutine shakeRoutine;
     private Vector3 originalPos;
@@ -31,10 +31,24 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    // Este método resuelve el error CS1061 con GameManager
+    // Patrón Observer: Suscripción a eventos
+    void OnEnable()
+    {
+        GameManager.OnPuntosCambiados += ActualizarPuntos;
+        PlayerHealth.OnVidasCambiadas += ActualizarCorazones;
+    }
+
+    void OnDisable()
+    {
+        // Cancelación de suscripción para evitar fugas de memoria
+        GameManager.OnPuntosCambiados -= ActualizarPuntos;
+        PlayerHealth.OnVidasCambiadas -= ActualizarCorazones;
+        DetenerTemblor();
+    }
+
     public void ActualizarPuntos(int puntos)
     {
-        string textoFormateado = puntos.ToString("D2"); // Formato "00", "01", etc.
+        string textoFormateado = puntos.ToString("D2");
 
         if (textoPuntosTMP != null)
         {
@@ -48,7 +62,6 @@ public class UIManager : MonoBehaviour
 
     public void ActualizarCorazones(int vidaActual)
     {
-        // 1. Mostrar u ocultar corazones según la vida restante
         for (int i = 0; i < corazones.Length; i++)
         {
             if (corazones[i] != null)
@@ -57,7 +70,6 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        // 2. Si solo queda 1 corazón, activar temblor
         if (vidaActual == 1 && corazones.Length > 0 && corazones[0] != null)
         {
             if (shakeRoutine == null)
@@ -96,10 +108,5 @@ public class UIManager : MonoBehaviour
                 corazones[0].transform.localPosition = originalPos;
             }
         }
-    }
-
-    void OnDisable()
-    {
-        DetenerTemblor();
     }
 }

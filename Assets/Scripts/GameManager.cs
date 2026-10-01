@@ -1,8 +1,13 @@
+using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    // Patrón Singleton
     public static GameManager Instance { get; private set; }
+
+    // Patrón Observer: Evento público al que se suscribe la UI
+    public static event Action<int> OnPuntosCambiados;
 
     private int puntuacion = 0;
 
@@ -16,9 +21,17 @@ public class GameManager : MonoBehaviour
         Instance = this;
     }
 
+    void Start()
+    {
+        // Notifica el puntaje inicial al arrancar
+        OnPuntosCambiados?.Invoke(puntuacion);
+    }
+
     public void SumarPuntos(int puntos)
     {
         puntuacion += puntos;
-        UIManager.Instance.ActualizarPuntos(puntuacion);
+
+        // Dispara el evento sin llamar directamente al UIManager
+        OnPuntosCambiados?.Invoke(puntuacion);
     }
 }
