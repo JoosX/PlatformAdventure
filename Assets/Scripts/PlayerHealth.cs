@@ -5,20 +5,15 @@ using UnityEngine.SceneManagement;
 public class PlayerHealth : MonoBehaviour
 {
     [SerializeField] private int vidasMaximas = 3;
-    [SerializeField] private float duracionFlash = 0.15f;
+    [SerializeField] private float tiempoInvulnerabilidad = 0.15f;
 
     private int vidasActuales;
-    private SpriteRenderer spriteRenderer;
-    private Color colorOriginal;
     private bool esInvulnerable = false;
+    private PlayerFlash efectoFlash;
 
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            colorOriginal = spriteRenderer.color;
-        }
+        efectoFlash = GetComponent<PlayerFlash>();
     }
 
     void Start()
@@ -40,23 +35,26 @@ public class PlayerHealth : MonoBehaviour
             UIManager.Instance.ActualizarCorazones(vidasActuales);
         }
 
-        if (spriteRenderer != null)
+        // Avisa al script visual para que cambie el color
+        if (efectoFlash != null)
         {
-            StartCoroutine(FlashDanio());
+            efectoFlash.EjecutarFlash(tiempoInvulnerabilidad);
         }
 
         if (vidasActuales <= 0)
         {
             Morir();
         }
+        else
+        {
+            StartCoroutine(RutinaInvulnerabilidad());
+        }
     }
 
-    private IEnumerator FlashDanio()
+    private IEnumerator RutinaInvulnerabilidad()
     {
         esInvulnerable = true;
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(duracionFlash);
-        spriteRenderer.color = colorOriginal;
+        yield return new WaitForSeconds(tiempoInvulnerabilidad);
         esInvulnerable = false;
     }
 

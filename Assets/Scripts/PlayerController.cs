@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.Cinemachine; // Si te marca error de compilación en esta línea, cámbiala por: using Cinemachine;
+using Unity.Cinemachine; 
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     Animator anim;
     CinemachineImpulseSource impulse;
+    PlayerAudio playerAudio; // 1. Nueva variable para el audio
     bool isGrounded;
     float x;
 
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         impulse = GetComponent<CinemachineImpulseSource>();
+        playerAudio = GetComponent<PlayerAudio>(); // 2. Obtener el componente
     }
 
     void Update()
@@ -51,10 +53,16 @@ public class PlayerController : MonoBehaviour
                 isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.25f, groundLayer);
             }
 
-            // 3. Salto + Disparo del Screen Shake
+            // 3. Salto + Audio + Screen Shake
             if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+                // 3. Reproducir el sonido de salto
+                if (playerAudio != null)
+                {
+                    playerAudio.ReproducirSalto();
+                }
 
                 // Activa la sacudida de pantalla si el componente existe
                 if (impulse != null)
@@ -85,7 +93,7 @@ public class PlayerController : MonoBehaviour
             PlayerHealth health = GetComponent<PlayerHealth>();
             if (health != null)
             {
-                health.RecibirDanio(1); // Quita 1 corazón por impacto
+                health.RecibirDanio(1); 
             }
         }
     }
