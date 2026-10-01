@@ -1,9 +1,13 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
+    // Patrón Observer: Evento de vida para desacoplar la UI
+    public static event Action<int> OnVidasCambiadas;
+
     [SerializeField] private int vidasMaximas = 3;
     [SerializeField] private float tiempoInvulnerabilidad = 0.15f;
 
@@ -19,10 +23,8 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         vidasActuales = vidasMaximas;
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ActualizarCorazones(vidasActuales);
-        }
+        // Notifica la vida inicial al HUD
+        OnVidasCambiadas?.Invoke(vidasActuales);
     }
 
     public void RecibirDanio(int cantidad = 1)
@@ -30,12 +32,10 @@ public class PlayerHealth : MonoBehaviour
         if (esInvulnerable) return;
 
         vidasActuales = Mathf.Max(0, vidasActuales - cantidad);
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ActualizarCorazones(vidasActuales);
-        }
+        
+        // Emite el evento con la nueva vida
+        OnVidasCambiadas?.Invoke(vidasActuales);
 
-        // Avisa al script visual para que cambie el color
         if (efectoFlash != null)
         {
             efectoFlash.EjecutarFlash(tiempoInvulnerabilidad);
