@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.jpg" alt="Platform Adventure Logo" width="600">
+  <img src="logo.png" alt="Platform Adventure Logo" width="600">
   
   # 🐰 Platform Adventure
   
