@@ -2,7 +2,7 @@
   <img src="logo.png" alt="Platform Adventure Logo" width="600">
   
  | Unity 6**
-  **Proyecto Final de Desarrollo de Videojuegos | Unity 6**
+  **Proyecto  de Desarrollo de Videojuegos | Unity 6**
   
   *Un plataformas 2D construido sobre arquitectura escalable, principios SOLID y optimización física.*
 </div>
