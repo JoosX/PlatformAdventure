@@ -1,8 +1,6 @@
 <div align="center">
   <img src="logo.png" alt="Platform Adventure Logo" width="600">
   
-  # 🐰 Platform Adventure
-  
  | Unity 6**
   **Proyecto Final de Desarrollo de Videojuegos | Unity 6**
   
