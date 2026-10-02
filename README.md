@@ -4,6 +4,7 @@
   # 🐰 Platform Adventure
   
  | Unity 6**
+  **Proyecto Final de Desarrollo de Videojuegos | Unity 6**
   
   *Un plataformas 2D construido sobre arquitectura escalable, principios SOLID y optimización física.*
 </div>
