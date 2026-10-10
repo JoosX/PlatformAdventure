@@ -44,23 +44,21 @@ public class GemaVictoria : MonoBehaviour
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            // linearVelocity para Unity 6 (si usas una versión anterior de Unity, cambia a rb.velocity)
             rb.linearVelocity = Vector2.zero;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        // 2. Desactivar el control del personaje para que no responda al teclado
-        // (Usa PlayerController, que es el nombre estándar que tienes en tu carpeta de scripts)
+        // 2. Desactivar el control del personaje
         MonoBehaviour control = player.GetComponent("PlayerController") as MonoBehaviour;
         if (control != null)
         {
             control.enabled = false;
         }
 
-        // 3. Reproducir audio si fue asignado
-        if (sonidoVictoria != null)
+        // 3. Reproducir audio usando el AudioManager (NUEVO)
+        if (sonidoVictoria != null && AudioManager.Instance != null)
         {
-            AudioSource.PlayClipAtPoint(sonidoVictoria, transform.position);
+            AudioManager.Instance.PlaySFX(sonidoVictoria);
         }
 
         // 4. Ocultar la gema

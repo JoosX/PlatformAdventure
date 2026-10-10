@@ -14,10 +14,12 @@ public class PlayerHealth : MonoBehaviour
     private int vidasActuales;
     private bool esInvulnerable = false;
     private PlayerFlash efectoFlash;
+    private PlayerAudio playerAudio; // Referencia al componente de audio
 
     void Awake()
     {
         efectoFlash = GetComponent<PlayerFlash>();
+        playerAudio = GetComponent<PlayerAudio>();
     }
 
     void Start()
@@ -35,6 +37,12 @@ public class PlayerHealth : MonoBehaviour
         
         // Emite el evento con la nueva vida
         OnVidasCambiadas?.Invoke(vidasActuales);
+
+        // Dispara el sonido de daño a través de PlayerAudio / AudioManager
+        if (playerAudio != null)
+        {
+            playerAudio.ReproducirDanio();
+        }
 
         if (efectoFlash != null)
         {
