@@ -9,13 +9,17 @@ public class Coin : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            // Reproduce el sonido en la posición antes de destruir el objeto
-            if (sfxMoneda != null)
+            // Reproduce el sonido a través del AudioManager (enrutado a SFX)
+            if (sfxMoneda != null && AudioManager.Instance != null)
             {
-                AudioSource.PlayClipAtPoint(sfxMoneda, transform.position);
+                AudioManager.Instance.PlaySFX(sfxMoneda);
             }
 
-            GameManager.Instance.SumarPuntos(valor);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.SumarPuntos(valor);
+            }
+
             Destroy(gameObject);
         }
     }

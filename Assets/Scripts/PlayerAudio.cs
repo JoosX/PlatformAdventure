@@ -3,26 +3,22 @@ using UnityEngine;
 public class PlayerAudio : MonoBehaviour
 {
     [Header("Efectos de Sonido")]
-    public AudioClip sfxSalto;
-    
-
-    private AudioSource audioSource;
-
-    void Awake()
-    {
-        audioSource = GetComponent<AudioSource>();
-        
-        if (audioSource == null) 
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
-    }
+    [SerializeField] private AudioClip sfxSalto;
+    [SerializeField] private AudioClip sfxDanio;
 
     public void ReproducirSalto()
     {
-        if (sfxSalto != null && audioSource != null)
+        if (sfxSalto != null && AudioManager.Instance != null)
         {
-            audioSource.PlayOneShot(sfxSalto);
+            AudioManager.Instance.PlaySFX(sfxSalto);
+        }
+    }
+
+    public void ReproducirDanio()
+    {
+        if (sfxDanio != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(sfxDanio);
         }
     }
 }

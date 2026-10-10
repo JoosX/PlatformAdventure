@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
                 // Activa la sacudida de pantalla si el componente existe
                 if (impulse != null)
                 {
-                    impulse.GenerateImpulse(0.5f);
+                    impulse.GenerateImpulse(0.2f);
                 }
             }
         }
