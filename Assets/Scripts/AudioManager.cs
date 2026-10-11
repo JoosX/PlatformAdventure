@@ -1,90 +1,145 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
-    public static AudioManager Instance { get; private set; }
+    public static AudioManager Instance;
 
-    [Header("Consola de Mezcla")]
-    [SerializeField] private AudioMixer mainMixer;
+    [Header("Música de Fondo")]
+    public AudioSource bgmSource;
+    [Range(0f, 1f)] public float volumenMaximo = 0.8f; // Volumen objetivo normal
 
-    [Header("Emisores de Audio")]
-    [SerializeField] private AudioSource musicSource;
-    [SerializeField] private AudioSource sfxSource;
+    [Header("Efectos de Sonido")]
+    public AudioSource sfxSource;
 
-    private Coroutine fadeCoroutine;
+    private Coroutine corrutinaFade;
 
-    private void Awake()
+    void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            if (bgmSource == null)
+            {
+                bgmSource = GetComponent<AudioSource>();
+            }
+
+            // Aseguramos que arranque con volumen y sonando
+            if (bgmSource != null)
+            {
+                bgmSource.volume = volumenMaximo;
+                if (!bgmSource.isPlaying && bgmSource.clip != null)
+                {
+                    bgmSource.Play();
+                }
+            }
+        }
+        else if (Instance != this)
         {
             Destroy(gameObject);
+        }
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += AlCargarEscena;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= AlCargarEscena;
+    }
+
+    private void AlCargarEscena(Scene scene, LoadSceneMode mode)
+    {
+        // Al entrar a una nueva escena, sube la música progresivamente si estaba atenuada
+        HacerFadeIn(1.2f);
+    }
+
+    // --- REPRODUCCIÓN DE MÚSICA ---
+    public void PlayMusic(AudioClip clip)
+    {
+        if (clip == null) return;
+        if (bgmSource == null) bgmSource = GetComponent<AudioSource>();
+
+        // Si ya está sonando la misma canción, solo asegúrate de que el volumen esté bien
+        if (bgmSource.clip == clip && bgmSource.isPlaying)
+        {
             return;
         }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        bgmSource.clip = clip;
+        bgmSource.volume = volumenMaximo;
+        bgmSource.Play();
     }
 
-    public void PlaySFX(AudioClip clip, float vol = 1f)
+    // --- EFECTOS DE SONIDO ---
+    public void PlaySFX(AudioClip clip)
     {
         if (clip == null) return;
-        sfxSource.pitch = Random.Range(0.9f, 1.1f);
-        sfxSource.PlayOneShot(clip, vol);
-    }
 
-    public void PlayMusic(AudioClip clip, bool loop = true, float targetVolume = 0.35f, float fadeDuration = 2.5f)
-    {
-        if (clip == null) return;
-        if (musicSource.clip == clip && musicSource.isPlaying) return;
-
-        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-        fadeCoroutine = StartCoroutine(FadeMusicRoutine(clip, loop, targetVolume, fadeDuration));
-    }
-
-    private IEnumerator FadeMusicRoutine(AudioClip clip, bool loop, float targetVol, float duration)
-    {
-        musicSource.clip = clip;
-        musicSource.loop = loop;
-        musicSource.volume = 0f;
-        musicSource.Play();
-
-        float timer = 0f;
-        while (timer < duration)
+        if (sfxSource != null)
         {
-            timer += Time.deltaTime;
-            musicSource.volume = Mathf.Lerp(0f, targetVol, timer / duration);
+            sfxSource.PlayOneShot(clip);
+        }
+        else if (bgmSource != null)
+        {
+            bgmSource.PlayOneShot(clip);
+        }
+    }
+
+    // --- FADES DE VOLUMEN ---
+    public void HacerFadeOut(float duracion)
+    {
+        if (corrutinaFade != null) StopCoroutine(corrutinaFade);
+        corrutinaFade = StartCoroutine(FadeOutCoroutine(duracion));
+    }
+
+    public void HacerFadeIn(float duracion)
+    {
+        if (corrutinaFade != null) StopCoroutine(corrutinaFade);
+        corrutinaFade = StartCoroutine(FadeInCoroutine(duracion));
+    }
+
+    private IEnumerator FadeOutCoroutine(float duracion)
+    {
+        if (bgmSource == null) yield break;
+        float tiempo = 0f;
+        float volInicial = bgmSource.volume;
+
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(volInicial, 0f, tiempo / duracion);
             yield return null;
         }
-        musicSource.volume = targetVol;
+
+        bgmSource.volume = 0f;
     }
 
-    public void StopMusic()
+    private IEnumerator FadeInCoroutine(float duracion)
     {
-        if (musicSource != null)
+        if (bgmSource == null) yield break;
+
+        // Si por alguna razón la música se detuvo, vuelve a darle Play
+        if (!bgmSource.isPlaying && bgmSource.clip != null)
         {
-            musicSource.Stop();
+            bgmSource.Play();
         }
-    }
 
-    /// <summary>
-    /// Ajusta el volumen del canal Música recibiendo un valor de slider entre 0.0001f y 1f.
-    /// </summary>
-    public void SetMusicVolume(float sliderValue)
-    {
-        sliderValue = Mathf.Clamp(sliderValue, 0.0001f, 1f);
-        float decibels = Mathf.Log10(sliderValue) * 20f;
-        mainMixer.SetFloat("MusicaVol", decibels);
-    }
+        float tiempo = 0f;
+        float volInicial = bgmSource.volume;
 
-    /// <summary>
-    /// Ajusta el volumen del canal SFX recibiendo un valor de slider entre 0.0001f y 1f.
-    /// </summary>
-    public void SetSFXVolume(float sliderValue)
-    {
-        sliderValue = Mathf.Clamp(sliderValue, 0.0001f, 1f);
-        float decibels = Mathf.Log10(sliderValue) * 20f;
-        mainMixer.SetFloat("SFXVol", decibels);
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(volInicial, volumenMaximo, tiempo / duracion);
+            yield return null;
+        }
+
+        bgmSource.volume = volumenMaximo;
     }
 }

@@ -1649,7 +1649,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GemaVictoria
   velocidadFlotacion: 3
   alturaFlotacion: 0.2
-  siguienteEscena: 
+  siguienteEscena: Level_02
   panelVictoria: {fileID: 0}
   sonidoVictoria: {fileID: 0}
   duracionFade: 1
@@ -41423,7 +41423,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1695652158
 RectTransform:
   m_ObjectHideFlags: 0
