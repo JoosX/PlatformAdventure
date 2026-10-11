@@ -7156,10 +7156,10 @@ TextureImporter:
       name: monochrome_tilemap_packed_320
       rect:
         serializedVersion: 2
-        x: 0
+        x: 3
         y: 48
-        width: 16
-        height: 16
+        width: 10
+        height: 10
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -7178,10 +7178,10 @@ TextureImporter:
       name: monochrome_tilemap_packed_321
       rect:
         serializedVersion: 2
-        x: 16
+        x: 19
         y: 48
-        width: 16
-        height: 16
+        width: 11
+        height: 11
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -7200,10 +7200,10 @@ TextureImporter:
       name: monochrome_tilemap_packed_322
       rect:
         serializedVersion: 2
-        x: 32
+        x: 35
         y: 48
-        width: 16
-        height: 16
+        width: 11
+        height: 11
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -7222,10 +7222,10 @@ TextureImporter:
       name: monochrome_tilemap_packed_323
       rect:
         serializedVersion: 2
-        x: 48
+        x: 51
         y: 48
-        width: 16
-        height: 16
+        width: 10
+        height: 11
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -7244,10 +7244,10 @@ TextureImporter:
       name: monochrome_tilemap_packed_324
       rect:
         serializedVersion: 2
-        x: 64
+        x: 66
         y: 48
-        width: 16
-        height: 16
+        width: 12
+        height: 8
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

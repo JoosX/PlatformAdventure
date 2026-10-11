@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,11 +10,25 @@ public class GemaVictoria : MonoBehaviour
     private Vector3 posicionInicial;
 
     [Header("Finalización")]
-    [SerializeField] private string siguienteEscena = ""; 
+    [SerializeField] private string siguienteEscena = "Level_02"; 
     [SerializeField] private GameObject panelVictoria;     
     [SerializeField] private AudioClip sonidoVictoria;
 
+    [Header("Transición")]
+    [SerializeField] private float duracionFade = 1.0f;
+    private float alphaFade = 0f;
+    private Texture2D texturaNegra;
+    private bool haciendoFade = false;
+
     private bool recolectada = false;
+
+    void Awake()
+    {
+        // Generar un pixel negro puro en memoria para el fade
+        texturaNegra = new Texture2D(1, 1);
+        texturaNegra.SetPixel(0, 0, Color.black);
+        texturaNegra.Apply();
+    }
 
     void Start()
     {
@@ -40,7 +55,7 @@ public class GemaVictoria : MonoBehaviour
 
     private void GanarNivel(GameObject player)
     {
-        // 1. Detener por completo la velocidad y clavar al personaje en su posición
+        // 1. Detener velocidad y congelar personaje
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -48,14 +63,14 @@ public class GemaVictoria : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        // 2. Desactivar el control del personaje
+        // 2. Desactivar controles del jugador
         MonoBehaviour control = player.GetComponent("PlayerController") as MonoBehaviour;
         if (control != null)
         {
             control.enabled = false;
         }
 
-        // 3. Reproducir audio usando el AudioManager (NUEVO)
+        // 3. Audio de victoria
         if (sonidoVictoria != null && AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySFX(sonidoVictoria);
@@ -68,22 +83,63 @@ public class GemaVictoria : MonoBehaviour
             sr.enabled = false;
         }
 
-        // 5. Mensaje en consola
+        // 5. Mensaje de consola
         Debug.Log("¡NIVEL COMPLETADO! ¡HAS CONSEGUIDO LA GEMA FINAL!");
 
-        // 6. Mostrar panel o cargar la siguiente escena si está configurada
+        // 6. Panel opcional
         if (panelVictoria != null)
         {
             panelVictoria.SetActive(true);
         }
-        else if (!string.IsNullOrEmpty(siguienteEscena))
+
+        // 7. Iniciar la transición visual y cambio de escena
+        StartCoroutine(TransicionCambioNivel());
+    }
+
+    private IEnumerator TransicionCambioNivel()
+    {
+        yield return new WaitForSeconds(0.3f); // Breve pausa tras tocar la gema
+
+        haciendoFade = true;
+        float tiempo = 0f;
+
+        // Animación progresiva oscureciendo la pantalla a negro
+        while (tiempo < duracionFade)
         {
-            Invoke("CargarSiguienteEscena", 1.5f);
+            tiempo += Time.deltaTime;
+            alphaFade = Mathf.Clamp01(tiempo / duracionFade);
+            yield return null;
+        }
+
+        alphaFade = 1f;
+
+        // Carga por nombre si está asignado, de lo contrario pasa a la siguiente por índice
+        if (!string.IsNullOrEmpty(siguienteEscena))
+        {
+            SceneManager.LoadScene(siguienteEscena);
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
 
-    private void CargarSiguienteEscena()
+    private void OnGUI()
     {
-        SceneManager.LoadScene(siguienteEscena);
+        // Dibuja el fundido negro directamente sobre toda la pantalla
+        if (haciendoFade && alphaFade > 0f)
+        {
+            GUI.color = new Color(0f, 0f, 0f, alphaFade);
+            GUI.depth = -1000; // Garantiza que quede encima de todo
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), texturaNegra);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (texturaNegra != null)
+        {
+            Destroy(texturaNegra);
+        }
     }
 }

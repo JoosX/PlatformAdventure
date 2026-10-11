@@ -6,7 +6,7 @@ public class MenuPrincipalManager : MonoBehaviour
     public void EmpezarJuego()
     {
         // Cambia "SampleScene" si la escena de tu nivel se llama diferente
-        SceneManager.LoadScene("SampleScene"); 
+        SceneManager.LoadScene("Level_01"); 
     }
 
     public void SalirDelJuego()
