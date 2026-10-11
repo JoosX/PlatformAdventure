@@ -103,6 +103,12 @@ public class GemaVictoria : MonoBehaviour
         haciendoFade = true;
         float tiempo = 0f;
 
+        // Bajar la música progresivamente al mismo tiempo que el fade visual
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.HacerFadeOut(duracionFade);
+        }
+
         // Animación progresiva oscureciendo la pantalla a negro
         while (tiempo < duracionFade)
         {
@@ -113,7 +119,7 @@ public class GemaVictoria : MonoBehaviour
 
         alphaFade = 1f;
 
-        // Carga por nombre si está asignado, de lo contrario pasa a la siguiente por índice
+        // Carga por nombre si está asignado, de lo contrario por índice
         if (!string.IsNullOrEmpty(siguienteEscena))
         {
             SceneManager.LoadScene(siguienteEscena);
