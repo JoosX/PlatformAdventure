@@ -10,7 +10,7 @@ public class GemaVictoria : MonoBehaviour
     private Vector3 posicionInicial;
 
     [Header("Finalización")]
-    [SerializeField] private string siguienteEscena = "Level_02"; 
+    [SerializeField] private string siguienteEscena = ""; // Si está vacío, carga el siguiente nivel por índice
     [SerializeField] private GameObject panelVictoria;     
     [SerializeField] private AudioClip sonidoVictoria;
 
@@ -83,22 +83,30 @@ public class GemaVictoria : MonoBehaviour
             sr.enabled = false;
         }
 
-        // 5. Mensaje de consola
-        Debug.Log("¡NIVEL COMPLETADO! ¡HAS CONSEGUIDO LA GEMA FINAL!");
-
-        // 6. Panel opcional
+        // 5. Mostrar cartel si existe
         if (panelVictoria != null)
         {
             panelVictoria.SetActive(true);
         }
 
-        // 7. Iniciar la transición visual y cambio de escena
+        Debug.Log("¡Gema recolectada! Iniciando transición de nivel...");
+
+        // 6. INICIAR TRANSICIÓN AUTOMÁTICA DE INMEDIATO
         StartCoroutine(TransicionCambioNivel());
+    }
+
+    // Por si mantienes el botón de continuar en la UI
+    public void BotonContinuarPresionado()
+    {
+        if (!haciendoFade)
+        {
+            StartCoroutine(TransicionCambioNivel());
+        }
     }
 
     private IEnumerator TransicionCambioNivel()
     {
-        yield return new WaitForSeconds(0.3f); // Breve pausa tras tocar la gema
+        yield return new WaitForSeconds(0.4f); // Breve pausa dramática al tocar la gema
 
         haciendoFade = true;
         float tiempo = 0f;
@@ -119,14 +127,22 @@ public class GemaVictoria : MonoBehaviour
 
         alphaFade = 1f;
 
-        // Carga por nombre si está asignado, de lo contrario por índice
+        // Carga por nombre si está lleno, o por índice correlativo
         if (!string.IsNullOrEmpty(siguienteEscena))
         {
             SceneManager.LoadScene(siguienteEscena);
         }
         else
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            int siguienteIndice = SceneManager.GetActiveScene().buildIndex + 1;
+            if (siguienteIndice < SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(siguienteIndice);
+            }
+            else
+            {
+                SceneManager.LoadScene(0); // Vuelve al Menú Principal si se acaban los niveles
+            }
         }
     }
 
