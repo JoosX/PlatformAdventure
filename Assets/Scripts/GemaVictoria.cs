@@ -24,6 +24,7 @@ public class GemaVictoria : MonoBehaviour
 
     void Awake()
     {
+        // Generar un pixel negro puro en memoria para el fade
         texturaNegra = new Texture2D(1, 1);
         texturaNegra.SetPixel(0, 0, Color.black);
         texturaNegra.Apply();
@@ -38,6 +39,7 @@ public class GemaVictoria : MonoBehaviour
     {
         if (recolectada) return;
 
+        // Movimiento oscilante suave arriba y abajo
         float nuevaY = posicionInicial.y + Mathf.Sin(Time.time * velocidadFlotacion) * alturaFlotacion;
         transform.position = new Vector3(posicionInicial.x, nuevaY, posicionInicial.z);
     }
@@ -53,7 +55,7 @@ public class GemaVictoria : MonoBehaviour
 
     private void GanarNivel(GameObject player)
     {
-        // 1. Detener y congelar personaje
+        // 1. Detener velocidad y congelar personaje
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -61,7 +63,7 @@ public class GemaVictoria : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        // 2. Desactivar controles
+        // 2. Desactivar controles del jugador
         MonoBehaviour control = player.GetComponent("PlayerController") as MonoBehaviour;
         if (control != null)
         {
@@ -109,11 +111,13 @@ public class GemaVictoria : MonoBehaviour
         haciendoFade = true;
         float tiempo = 0f;
 
+        // Bajar la música progresivamente al mismo tiempo que el fade visual
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.HacerFadeOut(duracionFade);
         }
 
+        // Animación progresiva oscureciendo la pantalla a negro
         while (tiempo < duracionFade)
         {
             tiempo += Time.deltaTime;
@@ -144,10 +148,11 @@ public class GemaVictoria : MonoBehaviour
 
     private void OnGUI()
     {
+        // Dibuja el fundido negro directamente sobre toda la pantalla
         if (haciendoFade && alphaFade > 0f)
         {
             GUI.color = new Color(0f, 0f, 0f, alphaFade);
-            GUI.depth = -1000;
+            GUI.depth = -1000; // Garantiza que quede encima de todo
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), texturaNegra);
         }
     }
