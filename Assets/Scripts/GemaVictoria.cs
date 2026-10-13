@@ -10,7 +10,7 @@ public class GemaVictoria : MonoBehaviour
     private Vector3 posicionInicial;
 
     [Header("Finalización")]
-    [SerializeField] private string siguienteEscena = ""; // Si lo dejas vacío, carga el siguiente por índice
+    [SerializeField] private string siguienteEscena = ""; // Si está vacío, carga el siguiente nivel por índice
     [SerializeField] private GameObject panelVictoria;     
     [SerializeField] private AudioClip sonidoVictoria;
 
@@ -81,29 +81,31 @@ public class GemaVictoria : MonoBehaviour
             sr.enabled = false;
         }
 
-        Debug.Log("¡NIVEL COMPLETADO! ¡HAS CONSEGUIDO LA GEMA FINAL!");
-
-        // 5. Mostrar el cartel "YOU WIN" con el botón
+        // 5. Mostrar cartel si existe
         if (panelVictoria != null)
         {
             panelVictoria.SetActive(true);
         }
+
+        Debug.Log("¡Gema recolectada! Iniciando transición de nivel...");
+
+        // 6. INICIAR TRANSICIÓN AUTOMÁTICA DE INMEDIATO
+        StartCoroutine(TransicionCambioNivel());
     }
 
-    // Este método lo ejecutará el botón NEXT al hacer clic
+    // Por si mantienes el botón de continuar en la UI
     public void BotonContinuarPresionado()
     {
-        // Ocultar el panel para ver el fade limpio
-        if (panelVictoria != null)
+        if (!haciendoFade)
         {
-            panelVictoria.SetActive(false);
+            StartCoroutine(TransicionCambioNivel());
         }
-
-        StartCoroutine(TransicionCambioNivel());
     }
 
     private IEnumerator TransicionCambioNivel()
     {
+        yield return new WaitForSeconds(0.4f); // Breve pausa dramática al tocar la gema
+
         haciendoFade = true;
         float tiempo = 0f;
 
@@ -121,7 +123,7 @@ public class GemaVictoria : MonoBehaviour
 
         alphaFade = 1f;
 
-        // Carga por nombre si está asignado; de lo contrario usa el índice siguiente
+        // Carga por nombre si está lleno, o por índice correlativo
         if (!string.IsNullOrEmpty(siguienteEscena))
         {
             SceneManager.LoadScene(siguienteEscena);
@@ -135,7 +137,7 @@ public class GemaVictoria : MonoBehaviour
             }
             else
             {
-                SceneManager.LoadScene(0);
+                SceneManager.LoadScene(0); // Vuelve al Menú Principal si se acaban los niveles
             }
         }
     }
